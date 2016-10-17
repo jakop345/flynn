@@ -178,6 +178,26 @@ func (p *Process) Ready() <-chan state.DatabaseEvent {
 	return p.events
 }
 
+func (p *Process) DefaultTunables() state.Tunables {
+	return state.Tunables{
+		Version: 1,
+		Data:    map[string]string{},
+	}
+}
+
+func (p *Process) ValidateTunables(tunables state.Tunables) error {
+	for k := range tunables.Data {
+		if _, ok := allowedTunables[k]; !ok {
+			return fmt.Errorf("unknown tunable: %s", k)
+		}
+	}
+	return nil
+}
+
+func (p *Process) applyTunables(config *state.Config) error {
+	return nil
+}
+
 func (p *Process) XLog() xlog.XLog {
 	return mongodbxlog.XLog{}
 }
@@ -300,6 +320,12 @@ func (p *Process) reconfigure(config *state.Config) error {
 		if p.configApplied() && config != nil && p.config() != nil && config.Equal(p.config()) && config.State.Equal(p.config().State) {
 			logger.Info("nothing to do", "reason", "config already applied")
 			return nil
+		}
+
+		// If only tunables have been updated apply them and return.
+		if p.running() && p.config().IsTunablesUpdate(config) {
+			logger.Info("tunables only update")
+			return p.applyTunables(config)
 		}
 
 		// If we're already running and it's just a change from async to sync with the same node, we don't need to restart
@@ -931,12 +957,6 @@ storage:
   wiredTiger:
     engineConfig:
       cacheSizeGB: 1
-
-# systemLog:
-#  destination: file
-#  path: {{.DataDir}}/mongod.log
-#  logAppend: true
-
 net:
   port: {{.Port}}
 

@@ -372,7 +372,7 @@
     "id": "add-mysql-provider",
     "action": "add-provider",
     "name": "mysql",
-    "url": "http://mariadb-api.discoverd/databases"
+    "url": "protobuf://mariadb-api.discoverd/databases"
   },
   {
     "id": "mongodb-password",
@@ -423,7 +423,7 @@
     "id": "add-mongodb-provider",
     "action": "add-provider",
     "name": "mongodb",
-    "url": "http://mongodb-api.discoverd/databases"
+    "url": "protobuf://mongodb-api.discoverd/databases"
   },
   {
     "id": "blobstore",
@@ -728,14 +728,12 @@
   {
     "id": "mariadb-wait",
     "action": "wait",
-    "url": "http://mariadb-api.discoverd",
-    "status": 404
+    "url": "protobuf://mariadb-api.discoverd"
   },
   {
     "id": "mongodb-wait",
     "action": "wait",
-    "url": "http://mongodb-api.discoverd",
-    "status": 404
+    "url": "protobuf://mongodb-api.discoverd"
   },
   {
     "id": "blobstore-wait",
